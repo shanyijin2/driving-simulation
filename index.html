@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#120d10" />
+    <meta name="description" content="极限刹车挑战：驾驶 V800 自动加速，把握踏板力度，在断裂前稳稳刹停。" />
+    <title>极限刹车挑战</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛑%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <div id="scene" aria-label="车辆行驶的 3D 公路场景"></div>
+    <div class="vignette"></div>
+    <header class="masthead"><span class="wordmark">V800 <i>PERFORMANCE</i></span><span class="edition">BRAKE TEST / 01</span></header>
+
+    <main>
+      <section id="menu" class="panel menu" aria-labelledby="title">
+        <div class="brand">新款也被 OTA 了？没关系，我们一年能造三款车</div>
+        <h1 id="title">极限刹车挑战</h1>
+        <p class="tagline">越快踩，越快停。别把刹车踏板踩断。</p>
+        <ul class="rules">
+          <li>车辆自动全力加速，<b>100 km/h</b> 后才能踩刹车</li>
+          <li>一踩下刹车，动力立即切断；<b>按得越久，力度越大</b></li>
+          <li>力度达到 <b class="danger">1612 N</b>，踏板断裂，整车翻滚失败</li>
+          <li>得分 = 刹车初速度² ÷ 刹停用时，越高越好</li>
+        </ul>
+        <button id="start" class="primary">开始挑战 <span aria-hidden="true">→</span></button>
+        <div class="menu-bottom"><button id="mute" class="text-button" aria-pressed="false">音效：开</button><span id="best">最佳纪录 —</span></div>
+        <p class="hint">按住屏幕或刹车按钮 · 键盘按住空格 / ↓</p>
+      </section>
+
+      <section id="hud" class="hidden" aria-label="驾驶仪表盘">
+        <div class="hud-top"><div class="chip"><span class="label">制动计时</span><strong id="timer">0.000 <small>s</small></strong></div><div class="chip"><span class="label">距路障</span><strong id="distance">2600 <small>m</small></strong></div></div>
+        <div class="force"><span class="label">踏板力度</span><div class="force-bar"><div id="force-fill"></div><div class="force-limit"><span>1612 N</span></div></div><strong id="force-value">0 N</strong></div>
+        <div class="speedometer"><svg viewBox="0 0 220 140" aria-hidden="true"><path class="arc-track" d="M 25 115 A 85 85 0 0 1 195 115"/><path id="speed-arc" d="M 25 115 A 85 85 0 0 1 195 115" pathLength="100"/><path class="mark" d="M 84 45 L 77 26"/><text x="17" y="137">0</text><text x="177" y="137">260</text></svg><div class="speed-readout"><strong id="speed">0</strong><span>km/h</span></div><p id="drive-status">自动全力加速</p></div>
+        <button id="brake" disabled aria-label="按住刹车"><span class="pedal"></span><span id="brake-label">100 后解锁</span></button>
+        <button id="exit" class="text-button">退出挑战</button>
+      </section>
+
+      <div id="notice" class="notice hidden" role="status"></div>
+      <div id="countdown" class="countdown hidden" aria-live="polite"></div>
+
+      <section id="result" class="panel result hidden" aria-labelledby="result-title" tabindex="-1">
+        <div class="result-eyebrow">V800 / 制动测试报告</div>
+        <h2 id="result-title">刹停成功</h2>
+        <p id="result-sub" class="tagline"></p>
+        <div class="stats"><div><span class="label">刹车初速度</span><strong id="stat-speed"></strong></div><div><span class="label">刹停用时</span><strong id="stat-time"></strong></div><div><span class="label">制动距离</span><strong id="stat-distance"></strong></div><div><span class="label">最大踏板力</span><strong id="stat-force"></strong></div></div>
+        <div class="chart-box"><div class="chart-head"><b>制动过程</b><span class="speed-key">车速</span><span class="force-key">踏板力</span><span class="limit-key">断裂极限</span></div><canvas id="chart" aria-label="制动时的车速和踏板力变化曲线" role="img"></canvas></div>
+        <div class="score-box"><span class="label">本次得分</span><strong id="score">0</strong><span id="record"></span></div>
+        <button id="retry" class="primary">再来一次 <span aria-hidden="true">↗</span></button>
+        <button id="home" class="text-button">返回首页</button>
+      </section>
+    </main>
+    <div id="loading">正在生成 3D 场景…</div>
+    <noscript>请启用 JavaScript 以运行极限刹车挑战。</noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
