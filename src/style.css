@@ -16,6 +16,7 @@
 .menu{width:min(500px,calc(100% - 28px));padding:20px 22px 17px}
 @media(min-width:1000px) and (min-height:601px){.menu{left:auto;right:28px;transform:none}}
 .menu h1{font-size:34px}.menu .tagline{margin-bottom:12px}.menu .rules{margin-bottom:14px;font-size:12px;line-height:1.75}
+.disclaimer{margin:12px 0 0;padding-top:10px;border-top:1px solid #d8c39a18;font-size:10px;line-height:1.6;color:#8d8680;text-align:left;overflow-wrap:anywhere}
 .selection{border:0;padding:0;margin:0 0 12px;text-align:left;min-width:0}
 .selection legend{display:flex;justify-content:space-between;width:100%;padding:0;margin-bottom:8px;font-size:11px;color:var(--gold);letter-spacing:.1em}
 .selection legend span{font:8px monospace;color:#8f857a;letter-spacing:.13em}
