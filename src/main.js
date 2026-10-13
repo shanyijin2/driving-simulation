@@ -1,7 +1,7 @@
 import './style.css';
 import { createScene } from './scene.js';
 import { createAudio } from './audio.js';
-import { createRun, stepRun, scoreRun, LIMIT, UNLOCK_SPEED, MAX_SPEED, ROAD_LENGTH } from './physics.js';
+import { createRun, stepRun, scoreRun, scoreBreakdown, VEHICLES, WEATHER, CRITICAL_RATIO, LIMIT, UNLOCK_SPEED, ROAD_LENGTH } from './physics.js';
 
 const $ = id => document.getElementById(id);
 const show = (id, visible) => $(id).classList.toggle('hidden', !visible);
@@ -17,9 +17,31 @@ try {
 let mode = 'menu', run = createRun(), countdown = 0, lastCount = 0;
 let previousTime = performance.now(), accumulator = 0, finishDelay = 0, noticeUntil = 0;
 let keys = new Set(), pointers = new Set(), readyNotified = false, best = 0;
-try { best = Math.max(0, Number(localStorage.getItem('brake:best')) || 0); } catch {}
-function updateBest() { $('best').textContent = best ? `最佳纪录 ${best.toLocaleString()} 分` : '最佳纪录 —'; }
-updateBest();
+let selectedVehicle = 'suv', selectedWeather = 'dry';
+const bestKey = () => `brake:v2:${selectedVehicle}:${selectedWeather}`;
+function updateBest() {
+  best = 0;
+  try { const saved = Number(localStorage.getItem(bestKey())); if (Number.isFinite(saved)) best = Math.max(0, saved); } catch {}
+  $('best').textContent = best ? `本组合最佳 ${best.toLocaleString()} 分` : '本组合最佳 —';
+}
+function updateSetup() {
+  run = createRun(selectedVehicle, selectedWeather);
+  scene?.configure(selectedVehicle, selectedWeather);
+  $('setup-note').textContent = `${VEHICLES[selectedVehicle].note} · ${WEATHER[selectedWeather].note}`;
+  document.querySelector('.wordmark').innerHTML = `${VEHICLES[selectedVehicle].model} <i>PERFORMANCE</i>`;
+  updateBest();
+}
+for (const kind of ['vehicle', 'weather']) {
+  document.querySelectorAll(`[data-${kind}]`).forEach(button => button.addEventListener('click', () => {
+    if (kind === 'vehicle') selectedVehicle = button.dataset.vehicle; else selectedWeather = button.dataset.weather;
+    document.querySelectorAll(`[data-${kind}]`).forEach(option => {
+      const selected = option === button;
+      option.classList.toggle('selected', selected); option.setAttribute('aria-pressed', String(selected));
+    });
+    updateSetup();
+  }));
+}
+updateSetup();
 
 function clearInput() { keys.clear(); pointers.clear(); }
 function notify(text, alert = false, duration = 2000) {
@@ -28,7 +50,9 @@ function notify(text, alert = false, duration = 2000) {
 }
 function start() {
   if (!scene) return;
-  audio.unlock(); clearInput(); run = createRun(); accumulator = 0;
+  audio.unlock(); clearInput(); run = createRun(selectedVehicle, selectedWeather); accumulator = 0;
+  scene.configure(selectedVehicle, selectedWeather);
+  show('crash-cinematic', false); document.body.classList.remove('critical-active');
   countdown = 3; lastCount = 3; readyNotified = false; mode = 'countdown';
   show('menu', false); show('result', false); show('hud', true); show('notice', false);
   show('countdown', true); $('countdown').textContent = '3'; audio.tone();
@@ -36,7 +60,8 @@ function start() {
   $('start').blur(); $('retry').blur();
 }
 function home() {
-  clearInput(); mode = 'menu'; run = createRun();
+  clearInput(); mode = 'menu'; updateSetup();
+  show('crash-cinematic', false); document.body.classList.remove('critical-active');
   show('menu', true); show('hud', false); show('result', false); show('countdown', false); show('notice', false);
   document.querySelector('.masthead').classList.remove('hidden'); updateBest(); $('start').focus();
 }
@@ -74,8 +99,15 @@ function updateHUD() {
   $('distance').innerHTML = `${Math.max(0, Math.round(ROAD_LENGTH - 2.7 - run.distance))} <small>m</small>`;
   $('force-fill').style.height = `${Math.min(100, run.force / LIMIT * 100)}%`;
   $('force-value').textContent = `${Math.round(run.force)} N`;
-  document.querySelector('.force').classList.toggle('warning', run.force > LIMIT * .85);
-  $('speed-arc').style.strokeDashoffset = 100 - run.speed / MAX_SPEED * 100;
+  const critical = mode === 'running' && run.speed > 1 && run.force >= LIMIT * CRITICAL_RATIO && run.force < LIMIT;
+  document.querySelector('.force').classList.toggle('warning', critical);
+  document.body.classList.toggle('critical-active', critical);
+  $('critical').classList.toggle('active', critical);
+  $('critical-bonus').textContent = `+${Math.floor(run.criticalTime * 350).toLocaleString()}`;
+  $('critical-hint').textContent = critical ? `危险区间 ${run.criticalTime.toFixed(1)} s · 成功刹停兑现` : '1370 N 以上积累奖励';
+  $('run-setup').textContent = `${VEHICLES[run.vehicle].name} / ${WEATHER[run.weather].name}`;
+  $('speed-arc').style.strokeDashoffset = 100 - run.speed / VEHICLES[run.vehicle].maxSpeed * 100;
+  document.querySelector('.speedometer text:last-child').textContent = Math.round(VEHICLES[run.vehicle].maxSpeed * 3.6);
   $('speed-arc').classList.toggle('ready', ready);
   $('brake').disabled = !ready || mode !== 'running';
   $('brake').classList.toggle('ready', ready);
@@ -88,15 +120,20 @@ function finish() {
   const success = run.outcome === 'stopped';
   const title = success ? '刹停成功' : run.outcome === 'broken' ? '刹车踏板断裂' : '撞上路障';
   $('result-title').textContent = title; $('result-title').classList.toggle('fail', !success);
-  $('result-sub').textContent = success ? '稳稳停住，V800 毫发无损' : run.outcome === 'broken' ? '踏板力度达到 1612 N，整车失控翻滚' : '没能在路障前刹停，再果断一点';
+  const vehicle = VEHICLES[run.vehicle];
+  $('result-setup').textContent = `${vehicle.name} / ${WEATHER[run.weather].name} / 制动测试报告`;
+  $('result-sub').textContent = success ? (run.criticalTime > 2 ? '脚下是极限，停车是艺术。' : run.weather === 'snow' ? '冰上也刹得住，你这脚有点东西。' : `${vehicle.model} 稳稳停住，乘客一致好评。`) : run.outcome === 'broken' ? '车停了，只是车顶朝下。踏板表示：尽力了。' : '路障没动，是你的刹车晚了一点。';
   const hasBraked = run.braking;
   $('stat-speed').textContent = hasBraked ? `${run.brakeSpeed.toFixed(1)} km/h` : '—';
   $('stat-time').textContent = hasBraked ? `${run.brakeTime.toFixed(3)} s` : '—';
   $('stat-distance').textContent = hasBraked ? `${(run.distance - run.brakeStart).toFixed(1)} m` : '—';
   $('stat-force').textContent = hasBraked ? `${Math.round(run.maxForce)} N` : '—';
   const score = scoreRun(run); $('score').textContent = score.toLocaleString();
+  const breakdown = scoreBreakdown(run);
+  $('score-detail').textContent = success ? `基础 ${breakdown.base.toLocaleString()} + 极限制动 ${breakdown.bonus.toLocaleString()} · 危险区间 ${run.criticalTime.toFixed(2)} s` : `曾坚持极限制动 ${run.criticalTime.toFixed(2)} s · 失败不兑现奖励`;
   $('record').textContent = !success ? '翻车不计分，再挑战一次吧' : score > best ? '新的个人最佳纪录' : `个人最佳 ${best.toLocaleString()} 分`;
-  if (score > best) { best = score; try { localStorage.setItem('brake:best', String(best)); } catch {} }
+  if (score > best) { best = score; try { localStorage.setItem(bestKey(), String(best)); } catch {} }
+  show('crash-cinematic', false); document.body.classList.remove('critical-active');
   mode = 'result'; show('hud', false); show('notice', false); show('result', true);
   document.querySelector('.chart-box').classList.toggle('hidden', !hasBraked);
   $('result').focus(); drawChart();
@@ -148,14 +185,19 @@ function frame(now) {
       if (!hadBraked && run.braking) notify(`动力切断 · 初速度 ${run.brakeSpeed.toFixed(1)} km/h`);
       if (!readyNotified && run.speed >= UNLOCK_SPEED) { readyNotified = true; notify('100 km/h · 刹车已解锁'); audio.tone(880, .1); }
       if (run.outcome) {
-        clearInput(); show('countdown', false); mode = 'finishing'; finishDelay = run.outcome === 'stopped' ? .9 : 3;
+        clearInput(); show('countdown', false); mode = 'finishing'; finishDelay = run.outcome === 'stopped' ? .9 : 5.6;
+        if (run.outcome === 'broken') show('crash-cinematic', true);
         notify(run.outcome === 'stopped' ? '完美刹停！' : run.outcome === 'broken' ? '刹车踏板断裂！' : '撞上路障！', run.outcome !== 'stopped', 3000);
         if (run.outcome === 'stopped') [523,659,784,1047].forEach((frequency,i) => audio.tone(frequency,.4,i*.1));
-        else [180,100,55].forEach((frequency,i) => audio.tone(frequency,.4,i*.12));
+        else { audio.snap(); [180,100,55].forEach((frequency,i) => audio.tone(frequency,.4,i*.12)); }
         break;
       }
     }
-  } else if (mode === 'finishing') { finishDelay -= dt; if (finishDelay <= 0) finish(); }
+  } else if (mode === 'finishing') {
+    finishDelay -= dt;
+    if (finishDelay < 4.65) show('crash-cinematic', false);
+    if (finishDelay <= 0) finish();
+  }
   if (now > noticeUntil) show('notice', false);
   if (mode !== 'menu' && mode !== 'result') updateHUD();
   audio.update(run, mode === 'running' && !document.hidden);

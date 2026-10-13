@@ -11,3 +11,42 @@
 @media(max-width:560px){.masthead{top:22px;left:20px;right:20px}.wordmark{font-size:19px}.wordmark i{display:none}.edition{font-size:9px}.panel{padding:22px 20px 18px}h1{font-size:32px}.rules{font-size:12px}.brand{font-size:9px;letter-spacing:.12em}.speedometer{width:52vw;left:10px;transform:none;bottom:18px}.speed-readout{bottom:44px}.speed-readout strong{font-size:52px}#brake{width:112px;height:112px;right:20px;bottom:28px}.hud-top{left:14px;right:14px;top:16px}.force{left:14px}.chip{padding:9px 12px}.chip strong{font-size:20px}.stats strong{font-size:18px}}
 @media(max-height:600px) and (orientation:landscape){.masthead{top:15px}.menu{bottom:10px;width:min(620px,calc(100% - 28px));padding:14px 20px}.brand,.tagline,.hint{display:none}h1{font-size:27px;margin:0 0 10px}.rules{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:12px;margin-bottom:12px}.primary{height:40px}.menu-bottom{margin-top:6px}.result{width:600px;padding:14px 20px}.result-eyebrow{display:none}h2{font-size:24px}.stats{grid-template-columns:repeat(4,1fr);margin:8px 0}.stats>div{padding:7px}.stats strong{font-size:16px}#chart{height:80px}.score-box{margin:6px 0;flex-direction:row;justify-content:center;align-items:center;gap:12px}.score-box strong{font-size:30px}#home{margin-top:3px}.speedometer{width:190px;left:80px;transform:none;bottom:10px}.speed-readout strong{font-size:40px}.speed-readout{bottom:40px}#brake{width:100px;height:100px;bottom:15px;right:20px}.force-bar{height:40vh}.chip{padding:6px 12px}.chip strong{font-size:18px}#exit{top:85px}}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
+
+/* Vehicle selection stays compact so the road remains part of the menu. */
+.menu{width:min(500px,calc(100% - 28px));padding:20px 22px 17px}
+@media(min-width:1000px) and (min-height:601px){.menu{left:auto;right:28px;transform:none}}
+.menu h1{font-size:34px}.menu .tagline{margin-bottom:12px}.menu .rules{margin-bottom:14px;font-size:12px;line-height:1.75}
+.selection{border:0;padding:0;margin:0 0 12px;text-align:left;min-width:0}
+.selection legend{display:flex;justify-content:space-between;width:100%;padding:0;margin-bottom:8px;font-size:11px;color:var(--gold);letter-spacing:.1em}
+.selection legend span{font:8px monospace;color:#8f857a;letter-spacing:.13em}
+.vehicle-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.option{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 3px 8px;border:1px solid #d8c39a22;border-radius:10px;background:#ffffff04;color:var(--muted);transition:background .15s,border-color .15s}
+.option svg{width:74px;height:30px;fill:currentColor}.option svg .window{fill:#171519}.option svg circle{fill:#171519;stroke:currentColor;stroke-width:2}
+.option b{font-size:12px;font-weight:600}.option span{font-size:9px;letter-spacing:.04em}
+.option.selected{border-color:var(--gold);background:#d8c39a12;color:var(--bright)}
+.weather-options{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.weather-options button{border:1px solid #d8c39a22;border-radius:8px;background:#ffffff04;color:var(--muted);height:32px;font-size:12px}
+.weather-options button.selected{color:var(--bright);border-color:var(--gold);background:#d8c39a12}
+.setup-note{font-size:10px;color:#a89e90;margin:0 0 12px;text-align:left;line-height:1.5;min-height:15px}
+.run-setup{position:absolute;top:102px;left:22px;font-size:10px;letter-spacing:.1em;color:var(--gold);text-shadow:0 1px 8px #000}
+.critical{position:absolute;top:95px;left:50%;transform:translateX(-50%);display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:6px 12px;padding:10px 16px;width:220px;border:1px solid #d8c39a30;border-radius:12px;background:#100c0e9c;backdrop-filter:blur(8px);color:#a9a29a;transition:background .15s,border-color .15s}
+.critical>span{font-size:12px;letter-spacing:.1em}.critical strong{font-size:20px;color:var(--gold)}.critical small{flex-basis:100%;font-size:9px;text-align:center}
+.critical.active{color:#ffd595;border-color:#ff8a4e;background:#55261dbd;box-shadow:0 0 24px #ff554525}.critical.active strong,.critical.active small{color:#ffd595}
+.critical-active .force-bar{box-shadow:0 0 22px #ff554560}.critical-active .speed-readout strong{color:#ffe0b0}
+.critical-active #force-value{animation:danger-pulse .7s ease-in-out infinite alternate}
+.critical-active .vignette{background:radial-gradient(ellipse at 50% 45%,transparent 45%,#ff4d352a);animation:danger-pulse .7s ease-in-out infinite alternate}
+.notice{top:32%}.score-detail{font:10px/1.7 monospace;color:var(--muted);margin:-5px 0 14px}
+.crash-cinematic{position:fixed;inset:0;z-index:4;pointer-events:none;background:radial-gradient(ellipse at center,#120d1040,#120d10bb);overflow:hidden}
+.crash-cinematic:before,.crash-cinematic:after{content:"";position:absolute;left:0;right:0;height:7vh;background:#0c0a0b}.crash-cinematic:before{top:0}.crash-cinematic:after{bottom:0}
+.crash-caption{position:absolute;left:0;right:0;top:17%;text-align:center}.crash-caption span{display:block;font-size:clamp(24px,7vw,42px);font-weight:800;letter-spacing:.2em;color:var(--danger)}.crash-caption b{display:block;font:11px monospace;letter-spacing:.15em;margin-top:12px;color:var(--gold)}
+.pedal-closeup{position:absolute;top:50%;left:50%;width:140px;height:160px;transform:translate(-50%,-50%) rotate(-9deg)}
+.pedal-stem{position:absolute;left:56px;top:0;width:24px;height:125px;background:linear-gradient(90deg,#4c4b4a,#ccc3b3,#55524c);border-radius:6px;animation:stem-snap .65s ease-out both}
+.pedal-half{position:absolute;top:90px;width:62px;height:60px;background:repeating-linear-gradient(90deg,#77746d 0 4px,#232222 4px 12px);border:5px solid #a69d8b;box-shadow:0 12px 30px #0008}
+.pedal-half.left{left:8px;border-radius:9px 0 0 9px;animation:pedal-left .8s .12s ease-out both}.pedal-half.right{left:70px;border-radius:0 9px 9px 0;animation:pedal-right .8s .12s ease-out both}
+.pedal-closeup em{position:absolute;top:5px;left:110px;font-size:45px;font-style:normal;color:var(--bright);transform:rotate(9deg);animation:snap-word .8s ease-out both}
+@keyframes danger-pulse{to{opacity:.5}}@keyframes stem-snap{to{transform:rotate(-25deg) translateY(18px)}}
+@keyframes pedal-left{to{transform:translate(-90px,80px) rotate(-45deg);opacity:.3}}@keyframes pedal-right{to{transform:translate(95px,55px) rotate(55deg);opacity:.3}}@keyframes snap-word{0%{opacity:0;transform:scale(1.8)}30%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
+@media(max-width:560px){.menu{padding:17px 18px 14px}.menu h1{font-size:30px;margin:5px 0}.menu .brand{font-size:9px}.menu .tagline{font-size:12px;margin-bottom:10px}.option svg{width:62px;height:27px}.option b{font-size:11px}.option span{font-size:8px}.menu .rules{font-size:11px}.run-setup{left:14px;top:92px}.critical{top:125px;width:208px;padding:8px 12px}.notice{top:34%}}
+@media(max-height:740px) and (orientation:portrait){.menu .brand{display:none}.menu .tagline{margin-bottom:8px}.selection{margin-bottom:9px}.menu .rules{font-size:10px}.menu .hint{font-size:10px}.option{padding:5px 3px}.menu h1{font-size:28px}}
+@media(max-height:600px) and (orientation:landscape){.menu{width:min(650px,calc(100% - 28px));padding:12px 18px}.menu h1{font-size:24px;margin-bottom:8px}.selection{display:inline-block;vertical-align:top;width:60%;margin:0 0 8px}.weather-selection{width:37%;margin-left:3%;padding-top:0}.option svg{height:22px;width:58px}.option{padding:4px 2px}.option span{display:none}.weather-options{grid-template-columns:1fr}.weather-options button{height:23px;font-size:10px}.selection legend{margin-bottom:5px}.setup-note{margin-bottom:7px;font-size:9px}.menu .rules{font-size:10px;margin-bottom:8px}.critical{top:17px;width:200px;padding:6px 10px}.critical strong{font-size:17px}.run-setup{top:79px;font-size:9px}.notice{top:30%}.score-detail{margin:0 0 7px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.critical-active .vignette,.critical-active #force-value,.pedal-stem,.pedal-half,.pedal-closeup em{animation:none}.pedal-half.left{transform:translate(-30px,20px) rotate(-25deg)}.pedal-half.right{transform:translate(30px,20px) rotate(25deg)}}
